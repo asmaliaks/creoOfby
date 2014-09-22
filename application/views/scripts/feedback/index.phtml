@@ -1,0 +1,656 @@
+<!-- Primary navigation --><script type="text/javascript" src="<?php $this->baseUrl() ?>/js/jq.js"></script>
+  <script src="<?= $this->baseUrl() ?>/js/dynatree/jquery/jquery.cookie.js" type="text/javascript"></script>
+
+  <script src="<?= $this->baseUrl() ?>/js/dynatree/jquery/jquery-ui.custom.js" type="text/javascript"></script>
+
+  <link href="<?= $this->baseUrl() ?>/js/dynatree/src/skin/ui.dynatree.css" rel="stylesheet" type="text/css" id="skinSheet">
+  <script src="<?= $this->baseUrl() ?>/js/dynatree/src/jquery.dynatree.js" type="text/javascript"></script>
+<link rel="stylesheet" href="<?= $this->baseUrl() ?>/js/dynatree/src/skin/ui.dynatree.css" type="text/css" media="screen">
+
+<script type="text/javascript">
+    $(document).ready(function(){
+<?php if ($this->showInfoTable) { ?>
+            $('#infoTable').show(); 
+            $('#companyInfo').hide();            
+<?php } else { ?>
+            $('#infoTable').hide();             
+            $('#companyInfo').show();
+<?php } ?>
+        $('#buttonUpdateInfo').click(
+        function(){
+            $('#infoTable').slideUp(500);
+            $('#companyInfo').slideDown(500);
+        });
+    });
+</script>
+<section id="maincontainer">
+    <div id="main" class="container_12">
+        <div class="box">
+            <div class="box-header">
+                <h1>пиздец какая инфа</h1>
+                <ul>
+                    <li class="<?= $this->companyInfoTab ?>"><a href="#one">дерево</a></li>
+                </ul>
+            </div>
+
+            <div class="box-content">
+                <div class="tab-content" id="one">
+                    <link rel='stylesheet' type='text/css' href='<?= $this->baseUrl() ?>/js/dynatree/src/skin/ui.dynatree.css'>
+                    <script src='<?= $this->baseUrl() ?>/js/dynatree/src/jquery.dynatree.js' type="text/javascript"></script>
+                    <!-- (Irrelevant source removed.) -->
+<script type="text/javascript">
+
+        // --- Implement Cut/Copy/Paste --------------------------------------------
+  var clipboardNode = null;
+  var pasteMode = null;
+
+ function copyPaste(action, node) {
+    switch( action ) {
+    case "cut":
+    case "copy":
+      clipboardNode = node;
+      pasteMode = action;
+      break;
+    case "paste":
+      if( !clipboardNode ) {
+        alert("Clipoard is empty.");
+        break;
+      }
+      if( pasteMode == "cut" ) {
+        // Cut mode: check for recursion and remove source
+        var isRecursive = false;
+        var cb = clipboardNode.toDict(true, function(dict){
+          // If one of the source nodes is the target, we must not move
+          if( dict.key == node.data.key )
+            isRecursive = true;
+        });
+        if( isRecursive ) {
+          alert("Cannot move a node to a sub node.");
+          return;
+        }
+        node.addChild(cb);
+        clipboardNode.remove();
+      } else {
+        // Copy mode: prevent duplicate keys:
+        var cb = clipboardNode.toDict(true, function(dict){
+          dict.title = "Copy of " + dict.title;
+          delete dict.key; // Remove key, so a new one will be created
+        });
+        node.addChild(cb);
+      }
+      clipboardNode = pasteMode = null;
+      break;
+    default:
+      alert("Unhandled clipboard action '" + action + "'");
+    }
+  };
+/*
+*   add one node
+*/  
+function createObject(){
+                          
+    var activeNode = $("#tree").dynatree("getActiveNode");
+    var parentId = null
+    if(activeNode){
+       parentId =  activeNode.data.id;
+    }
+    console.log(parentId);
+
+    var obj = [
+           { 
+             title: 'New Category',
+             isFolder: null,
+             id : 'object',
+             children: [ ],
+             expand: true
+                        }
+           ];
+var node = $("#tree").dynatree("getActiveNode");
+if( !node ){
+    $("#tree").dynatree("getRoot").addChild(obj);
+}else{
+    node.addChild(obj);
+    node.expand(true);
+  }          
+}
+// create folder
+ function createFolder(){
+         // Sample: add an hierarchic branch using code.
+      // This is how we would add tree nodes programatically
+      var activeNode = $("#tree").dynatree("getActiveNode");
+    
+      var parentId = null
+      if(!activeNode){
+         var rootNode = $("#tree").dynatree("getRoot");
+         
+         var childNode = rootNode.addChild({
+           title: "New folder",
+           tooltip: "This folder and all child nodes were added programmatically.",
+           isFolder: true,
+           id: 'root folder',
+           activate: true,
+           expand: true,
+           children: [],
+           icon: '<?= $this->baseUrl() ?>/js/dynatree/src/skin/folder.jpg'
+         });
+        
+      }else{ 
+          
+         if(activeNode.data.id != 'object'){   
+            var activeNode = $("#tree").dynatree("getActiveNode");
+            var parentNode = $("#tree").dynatree("getParent");
+            parentNode.dynatree('makeVisible');
+            parentId =  activeNode.data.id; 
+            var obj = [{ 
+                                                title: 'New folder',
+                                                isFolder: true,
+                                                id : 'folder',
+                                                children: [ ],
+                                                expand: true,
+                                                icon: '<?= $this->baseUrl() ?>/js/dynatree/src/skin/folder.jpg'
+                  }]; 
+            var node = $("#tree").dynatree("getActiveNode");
+                if( !node ){
+                    $("#tree").dynatree("getRoot").addChild(obj);
+                }else{
+                     node.addChild(obj);
+                     node.expand(true);
+                }
+ 
+         }else{
+            alert('You canot create folders in objects');
+      }
+    }
+} 
+/*
+ *       function create root folder
+ */
+function createRootFolder(){
+         var rootNode = $("#tree").dynatree("getRoot");
+         
+         var childNode = rootNode.addChild({
+          title: "New folder",
+           tooltip: "This folder and all child nodes were added programmatically.",
+           isFolder: true,
+           id: 'root folder',
+           activate: true,
+           expand: true,
+           icon: '<?= $this->baseUrl() ?>/js/dynatree/src/skin/folder.jpg'
+         });
+}
+
+/*
+*   edit node
+*/
+function editNode(node){
+  var prevTitle = node.data.title;
+    tree = node.tree;
+  // Disable dynatree mouse- and key handling
+  tree.$widget.unbind();
+  node.activate();
+  // Replace node with <input>
+  $(".dynatree-title", node.span).html("<input id='editNode' value='" + prevTitle + "'>");
+  // Focus <input> and bind keyboard handler
+  $("input#editNode")
+    .focus()
+    .keydown(function(event){
+      switch( event.which ) {
+      case 27: // [esc]
+        // discard changes on [esc]
+        $("input#editNode").val(prevTitle);
+        $(this).blur();
+        break;
+      case 13: // [enter]
+        // simulate blur to accept new value
+        if($("input#editNode").val() != ''){
+        $(this).blur();
+        }else{alert('You have to name this object.')}
+        break;
+      }
+    }).blur(function(event){
+      // Accept new value, when user leaves <input>
+      var title = $("input#editNode").val();
+      
+      node.setTitle(title);
+      // Re-enable mouse and keyboard handlling
+      tree.$widget.bind();
+      //node.activate();
+    }).click(function(oTextArea,nPos){
+        var prTitle = $('input#editNode').val();
+        
+        if(prTitle == 'New folder' || prTitle == 'New Category'){
+           $('input#editNode').val('');
+        }else{
+           $('input#editNode').val(prTitle);       
+        }
+
+
+    });
+}
+
+// ----------
+/*
+*       remove node
+*/ 
+
+function removeNode(){                                                         
+     var node = $("#tree").dynatree("getActiveNode");
+       if( !node ){
+          console.log('no category selected');
+          
+       }else{
+         console.log('node');
+         node.remove();
+
+       }
+}
+
+
+  // --- Contextmenu helper --------------------------------------------------
+  function bindContextMenu(span) {
+    // Add context menu to this node:
+    $(span).contextMenu({menu: "myMenu"}, function(action, el, pos) {
+      $('#tree').dynatree("focus");
+      // The event was bound to the <span> tag, but the node object
+      // is stored in the parent <li> tag
+      var node = $.ui.dynatree.getNode(el);
+      switch( action ) {
+      case "cut": 
+      case "copy": 
+      case "paste": 
+        copyPaste(action, node);
+        break;
+      case "edit": editNode(node);
+        break;
+      case "delete": removeNode();   
+        break;
+      case "addFolder": createFolder();
+        break;
+      case "addRootFolder": createRootFolder();
+        break;
+      case "addObject": createObject();
+        break;
+      default:
+        alert("Todo: appply action '" + action + "' to node " + node);
+      }
+    });
+  };
+  //               FIRST TREE
+  // --- Init dynatree during startup      ----------------------------------------
+  
+$(function(){
+     var isMac = /Mac/.test(navigator.platform);
+  // --- Initialize first Dynatree -------------------------------------------
+  $("#tree").dynatree({
+initAjax: {
+       //url: "<?= $this->baseUrl() ?>/js/dynatree/doc/sample-data3.json"
+    },    
+    dnd: {
+      onDragStart: function(node) {
+        /** This function MUST be defined to enable dragging for the tree.
+         *  Return false to cancel dragging of node.
+         */
+        logMsg("tree.onDragStart(%o)", node);
+        return true;
+      },
+      onDragStop: function(node) {
+        // This function is optional.
+        logMsg("tree.onDragStop(%o)", node);
+      },
+      autoExpandMS: 1000,
+      preventVoidMoves: true, // Prevent dropping nodes 'before self', etc.
+      onDragEnter: function(node, sourceNode) {
+        /** sourceNode may be null for non-dynatree droppables.
+         *  Return false to disallow dropping on node. In this case
+         *  onDragOver and onDragLeave are not called.
+         *  Return 'over', 'before, or 'after' to force a hitMode.
+         *  Return ['before', 'after'] to restrict available hitModes.
+         *  Any other return value will calc the hitMode from the cursor position.
+         */
+        logMsg("tree.onDragEnter(%o, %o)", node, sourceNode);
+        return true;
+      },
+      onDragOver: function(node, sourceNode, hitMode) {
+        /** Return false to disallow dropping this node.
+         *
+         */
+        logMsg("tree.onDragOver(%o, %o, %o)", node, sourceNode, hitMode);
+        // Prevent dropping a parent below it's own child
+        if(node.isDescendantOf(sourceNode)){
+          return false;
+        }
+        // Prohibit creating childs in non-folders (only sorting allowed)
+        if( !node.data.isFolder && hitMode === "over" ){
+          return "after";
+        }
+      },
+      onDrop: function(node, sourceNode, hitMode, ui, draggable) {
+        /** This function MUST be defined to enable dropping of items on
+         * the tree.
+         */
+        logMsg("tree.onDrop(%o, %o, %s)", node, sourceNode, hitMode);
+        sourceNode.move(node, hitMode);
+        // expand the drop target
+//        sourceNode.expand(true);
+      },
+      onDragLeave: function(node, sourceNode) {
+        /** Always called if onDragEnter was called.
+         */
+        logMsg("tree.onDragLeave(%o, %o)", node, sourceNode);
+      }}   
+,
+    /*
+     * copypastestuff
+     */
+          persist: true,
+      onActivate: function(node) {
+        $("#echoActivated").text(node.data.title + ", key=" + node.data.key);
+      },
+      onClick: function(node, event) {
+        // Close menu on click
+        if( $(".contextMenu:visible").length > 0 ){
+          $(".contextMenu").hide();
+//          return false;
+
+        }
+      },
+      onKeydown: function(node, event) {
+        // Eat keyboard events, when a menu is open
+        if( $(".contextMenu:visible").length > 0 )
+          return false;
+
+        switch( event.which ) {
+
+        // Open context menu on [Space] key (simulate right click)
+        case 32: // [Space]
+          $(node.span).trigger("mousedown", {
+            preventDefault: true,
+            button: 2
+            })
+          .trigger("mouseup", {
+            preventDefault: true,
+            pageX: node.span.offsetLeft,
+            pageY: node.span.offsetTop,
+            button: 2
+            });
+          return false;
+
+        // Handle Ctrl-C, -X and -V
+        case 67:
+          if( event.ctrlKey ) { // Ctrl-C
+            copyPaste("copy", node);
+            return false;
+          }
+          break;
+        case 86:
+          if( event.ctrlKey ) { // Ctrl-V
+            copyPaste("paste", node);
+            return false;
+          }
+          break;
+        case 88:
+          if( event.ctrlKey ) { // Ctrl-X
+            copyPaste("cut", node);
+            return false;
+          }
+          break;
+        }
+      },
+      /*Bind context menu for every node when it's DOM element is created.
+        We do it here, so we can also bind to lazy nodes, which do not
+        exist at load-time. (abeautifulsite.net menu control does not
+        support event delegation)*/
+      onCreate: function(node, span){
+        bindContextMenu(span);
+      },
+      /*Load lazy content (to show that context menu will work for new items too)*/
+      onLazyRead: function(node){
+        node.appendAjax({
+          url: "<?= $this->baseUrl() ?>/js/dynatree/doc/sample-data2.json"
+        });
+      },
+ 
+/*
+*     dblclick
+*/
+    
+        title: "Event samples",
+    onClick: function(node, event) {
+      if( event.shiftKey ){
+        editNode(node);
+        return false;
+      }
+    },
+    onDblClick: function(node, event) {
+      editNode(node);
+      return false;
+    },
+    onKeydown: function(node, event) {
+      switch( event.which ) {
+      case 113: // [F2]
+        editNode(node);
+        return false;
+      case 13: // [enter]
+        if( isMac ){
+          editNode(node);
+          return false;
+        }
+      }
+    }
+
+  });
+//           SECOND TREE
+$(function(){
+  // --- Initialize first Dynatree -------------------------------------------
+  $("#tree2").dynatree({
+    initAjax: {
+      url: "<?= $this->baseUrl() ?>/js/dynatree/doc/sample-data3.json"
+    },
+    onLazyRead: function(node){
+      // Mockup a slow reqeuest ...
+      node.appendAjax({
+        url: "<?= $this->baseUrl() ?>/js/dynatree/doc/sample-data2.json",
+        debugLazyDelay: 750 // don't do thi in production code
+      });
+    },
+    onActivate: function(node) {
+      $("#echoActive").text(node.data.title + "(" + node.data.key + ")");
+    },
+    onDeactivate: function(node) {
+      $("#echoActive").text("-");
+    },
+    dnd: {
+      onDragStart: function(node) {
+        /** This function MUST be defined to enable dragging for the tree.
+         *  Return false to cancel dragging of node.
+         */
+        logMsg("tree.onDragStart(%o)", node);
+        if(node.data.isFolder)
+          return false;
+        return true;
+      },
+      onDragStop: function(node) {
+        logMsg("tree.onDragStop(%o)", node);
+      }
+    }
+  });
+});
+/*
+ * add one
+ */
+      $("#btnAddCode").click(function(){
+createFolder();
+    });
+$('#btnRootCode').click(function(){
+createRootFolder();
+});    
+$("#btnRmObject").click(function(){
+removeNode();   
+    });
+$("#btnAddObject").click(function(){
+createObject();
+       }); 
+       
+       $('#btnSetTitle').click(function(){
+editNode();           
+       });
+       
+$('#saveTree').click(function(){
+      //save latest tree in background
+                                var object = $("#tree").dynatree("getTree").toDict();
+                               // console.log(object);
+                                var jsonObject = JSON.stringify(object, null, 2);
+                                var urlName = '<?= $this->urlName ?>';
+                                $.ajax({
+                                    url: "/admin/ajax/save-categories-tree/",
+                                    type: "post",
+                                    data: { json :  jsonObject,
+                                            url : urlName},
+                                    // callback handler that will be called on success
+                                    success: function(){
+                                        
+                                        var urlName = '<?= $this->urlName ?>';
+                                        var jsonObject = JSON.stringify(object, null, 2);
+                                        console.log('huj');
+                                    },
+                                    // callback handler that will be called on error
+                                    error: function(jqXHR, textStatus, errorThrown){
+                                        // log the error to the console
+                                        console.log(
+                                        "The following error occured: "+
+                                            textStatus, errorThrown
+                                    );
+                                    },
+                                    // callback handler that will be called on completion
+                                    // which means, either on success or error
+                                    complete: function(){
+                                        // enable the inputs
+                                        //$inputs.removeAttr("disabled");
+                                    }
+                                });
+   });
+/*
+*         show active node
+*/                            $("#btnShowActive").click(function(){
+
+                                var node = $("#tree").dynatree("getActiveNode");
+                                if( node ){
+                                    alert("Currently active: " + node.data.title);
+                                }else{
+                                    alert("No active node.");
+                                }
+                            });
+/*
+ *     disable
+ */
+                            $("#btnDisable").toggle(function(){
+                                $("#tree").dynatree("disable");
+                                $(this).text("Enable");
+                                return false;
+                            }, function(){
+                                $("#tree").dynatree("enable");
+                                $(this).text("Disable");
+                                return false;
+                            });
+/*
+ *     toggle                           
+ */                                                                                    
+                            $("#btnToggleExpand").click(function(){
+                                $("#tree").dynatree("getRoot").visit(function(node){
+                                    node.toggleExpand();
+                                });
+                                return false;
+                            });
+/*
+*    collapse all
+*/                            
+                            $("#btnCollapseAll").click(function(){
+                                $("#tree").dynatree("getRoot").visit(function(node){
+                                    node.expand(false);
+                                });
+                                return false;
+                            });
+
+   /*
+   *    expend all
+   */                         
+                            function expandAll(){
+                                $("#tree").dynatree("getRoot").visit(function(node){
+                                    node.expand(true);
+                                });
+                                return false;
+                            }   
+   
+   
+                                $("#btnExpandAll").click(function(){
+                                $("#tree").dynatree("getRoot").visit(function(node){
+                                    node.expand(true);
+                                });
+                                return false;
+                            });
+    //--------------      remove button
+                          $('#btnRmObject').click(function(){
+                              removeNode();
+                          });
+                       
+});                           
+                    </script>
+
+                    <h1>Dynatree API</h1>
+                    <p class="description">
+                        This example demonstrates the usage of some DynaTree and DynaTreeNode
+                        API functions.
+                    </p>
+                    <input type="text"/>
+                    <p>
+                        <a href="#" id="btnExpandAll">Expand all</a> -
+                        <a href="#" id="btnCollapseAll">Collapse all</a> -
+                        <a href="#" id="btnToggleExpand">Toggle expand</a>
+                        <br>
+                        <a href="#" id="btnDisable">Disable</a>
+                    </p>
+  <ul id="myMenu" class="contextMenu">
+    <li ><a href="#addFolder">Add folder</a></li>
+    <li ><a href="#addRootFolder">Root folder</a></li>
+    <li ><a href="#addObject">Add object</a></li>
+    <li class="edit separator"><a href="#edit">Edit</a></li>
+    <li class="cut separator"><a href="#cut">Cut</a></li>
+    <li class="copy"><a href="#copy">Copy</a></li>
+    <li class="paste"><a href="#paste">Paste</a></li>
+    <li class="delete"><a href="#delete">Delete</a></li>
+    <li class="quit separator"><a href="#quit">Quit</a></li>
+  </ul>
+<tbody>
+  <tr valign="top">
+    <td>
+      <div id="tree"></div>
+    </td>
+    <td>
+      <div id="tree2"></div>
+    </td>
+  </tr>
+</tbody>
+  <tr>
+    <td>
+      <div>Active node: <span id="echoActive">-</span></div>
+    </td>
+    <td>
+      <div>Active node: <span id="echoActive2">-</span></div>
+    </td>
+  </tr>
+                    <p>
+  <button id="btnAddCode"  >Add folder</button>
+  <button id="btnRootCode">Add root folder</button>
+  <button id="btnRmObject">Remove</button>
+  <button id="btnAddObject">add object</button>
+  <button id="saveTree">Save</button>
+  <button id="btnShowActive">Show Active Node</button>
+                    </p>
+                    трее
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
